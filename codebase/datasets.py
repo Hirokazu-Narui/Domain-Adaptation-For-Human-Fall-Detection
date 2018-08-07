@@ -44,11 +44,11 @@ def create_labeled_data(x, y, seed, npc):
     y_l = np.concatenate(y_l, axis=0)
     return x_l, y_l
 
-def data_import(domain, mode):
+def data_import(domain, mode, person):
     if domain == "source":
         folder_name = "../Pickle/norm/non_smooth/{0}/{1}/*W400/*/*.pkl".format(domain, mode)
     else:
-        folder_name = "../Pickle/norm/non_smooth/{0}/{1}/*W400/person1/*/*.pkl".format(domain, mode)
+        folder_name = "../Pickle/norm/non_smooth/{0}/{1}/*W400/{2}/*/*.pkl".format(domain, mode, person)
     ## Data read from pkl file
     x_fall = x_normal = y_fall = y_normal =  None
     files = []
@@ -158,19 +158,19 @@ class PseudoData(object):
         self.test = Data(datasets.test.images, labeler=labeler, cast=cast)
 
 class WifiMexico(object):
-    def __init__(self, shape=(30, 400, 3), seed=0, npc=None):
+    def __init__(self, shape=(30, 400, 3), seed=0, npc=None, person=None):
         print "Loading WifiMexico"
         sys.stdout.flush()
 
         # import train_data
-        x_fall_train, x_normal_train, y_fall_train, y_normal_train = data_import(domain="target",mode="train")
+        x_fall_train, x_normal_train, y_fall_train, y_normal_train = data_import(domain="target",mode="train", person=person)
         print(" fall=", len(x_fall_train), " normal=", len(x_normal_train))
 
         wifi_x_mexico_train = np.r_[x_fall_train, x_normal_train]
         wifi_y_mexico_train = np.r_[y_fall_train, y_normal_train]
 
         # import test_data
-        x_fall_test, x_normal_test, y_fall_test, y_normal_test = data_import(domain="target",mode="validation")
+        x_fall_test, x_normal_test, y_fall_test, y_normal_test = data_import(domain="target",mode="validation", person=person)
         print(" fall=", len(x_fall_test), " normal=", len(x_normal_test))
 
         wifi_x_mexico_test = np.r_[x_fall_test, x_normal_test]
@@ -199,7 +199,7 @@ class WifiStanford(object):
         sys.stdout.flush()
 
         # import train_data
-        x_fall_train, x_normal_train, y_fall_train, y_normal_train = data_import(domain="source",mode="train")
+        x_fall_train, x_normal_train, y_fall_train, y_normal_train = data_import(domain="source",mode="train",person=None)
 
         # Eliminate p(y)
         np.random.seed(0)
@@ -212,7 +212,7 @@ class WifiStanford(object):
         wifi_y_stanford_train = np.r_[y_fall_train, y_normal_train]
 
         # import test_data
-        x_fall_test, x_normal_test, y_fall_test, y_normal_test = data_import(domain="source",mode="validation")
+        x_fall_test, x_normal_test, y_fall_test, y_normal_test = data_import(domain="source",mode="validation",person=None)
 
         # Eliminate p(y)
         np.random.seed(0)

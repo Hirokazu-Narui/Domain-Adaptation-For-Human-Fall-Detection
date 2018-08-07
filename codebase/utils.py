@@ -74,7 +74,7 @@ def exact_accuracy(fn_acc, tag, dataloader, full=True):
 #     summary = tf.Summary(value=[summary])
 #     return acc, summary
 
-def get_data(name, seed=0, npc=None):
+def get_data(name, seed=0, npc=None, person=None):
     if name == 'svhn':
         return datasets.Svhn(seed=seed, npc=npc)
 
@@ -112,7 +112,7 @@ def get_data(name, seed=0, npc=None):
         return datasets.Svhn(seed=seed, npc=npc, permute=True)
 
     elif name == 'wifimexico':
-        return datasets.WifiMexico(shape=(30, 400, 3), seed=seed, npc=npc)
+        return datasets.WifiMexico(shape=(30, 400, 3), seed=seed, npc=npc, person=person)
 
     elif name == 'wifistanford':
         return datasets.WifiStanford(shape=(30, 400, 3), seed=seed, npc=npc)

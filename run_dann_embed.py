@@ -34,6 +34,7 @@ parser.add_argument('--dwdn',   type=int,   default=0,         help="Ramping dow
 parser.add_argument('--phase',  type=int,   default=0,         help="Init phase v. DIRT phase")
 parser.add_argument('--run',    type=int,   default=999,       help="Run index")
 parser.add_argument('--logdir', type=str,   default='log',     help="Log directory")
+parser.add_argument('--person', type=str,   default='person1', help="person")
 codebase_args.args = args = parser.parse_args()
 pprint(vars(args))
 
@@ -72,7 +73,8 @@ setup = [
     # ('lr={:.0e}',  args.lr),
     # ('a_dw={:d}',  args.a_dw),
     # ('a_lr={:d}',  args.a_lr),
-    ('run={:04d}',   args.run)
+    ('run={:04d}',   args.run),
+    ('person={:s}',  args.person)
 ]
 model_name = '_'.join([t.format(v) for (t, v) in setup])
 print "Model name:", model_name
@@ -86,13 +88,13 @@ saver = tf.train.Saver()
 if args.phase == 1:
     assert args.dirt > 0, "DIRT interval must be positive"
     run = args.run
-    template = 'model=dann_embed_src={:s}_trg={:s}_design={:s}_trim={:d}_dw={:.0e}_sbw={:.0e}_cw={:.0e}_tbw={:.0e}_dirt=00000_init=0_pivot=90000_up=0_uval=0e+00_dn=0_dcval=0e+00_dwdn=0_phase=0_run={:04d}'
+    template = 'model=dann_embed_src={:s}_trg={:s}_design={:s}_trim={:d}_dw={:.0e}_sbw={:.0e}_cw={:.0e}_tbw={:.0e}_dirt=00000_init=0_pivot=90000_up=0_uval=0e+00_dn=0_dcval=0e+00_dwdn=0_phase=0_run={:04d}_person={:s}'
     restoration_name = template.format(args.src, args.trg, args.design, args.trim, args.dw, args.sbw, args.cw, args.tbw, run)
     restoration_path = os.path.join('checkpoints', restoration_name)
 
     if args.run >= 999 or not os.path.exists(restoration_path):
         run = args.run % 3
-        template = 'model=dann_embed_src={:s}_trg={:s}_design={:s}_dw={:.0e}_sbw={:.0e}_cw={:.0e}_tbw={:.0e}_dirt=00000_init=0_pivot=90000_up=0_uval=0e+00_dn=0_dcval=0e+00_dwdn=0_phase=0_run={:04d}'
+        template = 'model=dann_embed_src={:s}_trg={:s}_design={:s}_dw={:.0e}_sbw={:.0e}_cw={:.0e}_tbw={:.0e}_dirt=00000_init=0_pivot=90000_up=0_uval=0e+00_dn=0_dcval=0e+00_dwdn=0_phase=0_run={:04d}_person={:s}'
         restoration_name = template.format(args.src, args.trg, args.design, args.dw, args.sbw, args.cw, args.tbw, run)
         restoration_path = os.path.join('checkpoints', restoration_name)
 
@@ -102,8 +104,8 @@ if args.phase == 1:
     saver.restore(M.sess, path)
     print "Restored from {}".format(path)
 
-src = get_data(args.src)
-trg = get_data(args.trg)
+src = get_data(args.src, person=args.person)
+trg = get_data(args.trg, person=args.person)
 Y = src.train.labels.shape[-1]
 y_prior = trg.train.labels.mean(axis=0) if args.y_emp else [1. / Y] * Y
 print "y_prior is", y_prior
